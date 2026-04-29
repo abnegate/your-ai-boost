@@ -28,7 +28,7 @@ function busiestHourLabel(hours: readonly number[]): string {
   if (best <= 0) return '—';
   const suffix = bestIndex >= 12 ? 'pm' : 'am';
   const hour12 = bestIndex % 12 === 0 ? 12 : bestIndex % 12;
-  return `${hour12}${suffix} UTC`;
+  return `${hour12}${suffix}`;
 }
 
 const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

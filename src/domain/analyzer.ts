@@ -115,10 +115,26 @@ function buildHistograms(samples: readonly SearchCommitItem[]): {
     if (!sample.committedAt) continue;
     const date = new Date(sample.committedAt);
     if (Number.isNaN(date.getTime())) continue;
-    dayOfWeek[date.getUTCDay()] = (dayOfWeek[date.getUTCDay()] ?? 0) + 1;
-    hour[date.getUTCHours()] = (hour[date.getUTCHours()] ?? 0) + 1;
+    // Local time: matches when the user actually shipped from their seat.
+    dayOfWeek[date.getDay()] = (dayOfWeek[date.getDay()] ?? 0) + 1;
+    hour[date.getHours()] = (hour[date.getHours()] ?? 0) + 1;
   }
   return { dayOfWeek, hour };
+}
+
+const chartMonthsBeforeAiStart = 6;
+
+// Slice months to a window suitable for charting: 6 months before the AI start
+// through now. Full history is kept on `months` for averaging / streak math.
+function windowMonths(
+  months: readonly MonthlyBucket[],
+  firstAiMonth: string | null,
+): MonthlyBucket[] {
+  if (!firstAiMonth) return months.slice(-12);
+  const firstIndex = months.findIndex((m) => m.yearMonth >= firstAiMonth);
+  if (firstIndex < 0) return months.slice();
+  const start = Math.max(0, firstIndex - chartMonthsBeforeAiStart);
+  return months.slice(start);
 }
 
 export type AnalyzeInput = {
@@ -182,6 +198,7 @@ export function analyze(input: AnalyzeInput): AnalysisResult {
     preMonthlyAverage: preAverage,
     postMonthlyAverage: postAverage,
     months,
+    chartMonths: windowMonths(months, firstAiMonth),
     totalCommits,
     totalAiCommits,
     aiShare,

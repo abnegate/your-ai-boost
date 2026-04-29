@@ -2,10 +2,18 @@ import { describe, expect, test } from 'bun:test';
 import { detectAssistant, markers, markersByAssistant } from '~/domain/markers';
 
 describe('markers catalog', () => {
-  test('every marker has at least one query and pattern', () => {
+  test('every marker has a primary query and at least one pattern', () => {
     for (const marker of markers) {
-      expect(marker.queries.length).toBeGreaterThan(0);
+      expect(marker.primaryQuery.length).toBeGreaterThan(0);
       expect(marker.patterns.length).toBeGreaterThan(0);
+    }
+  });
+
+  test('primary queries are distinct (so /search/commits totals do not overlap)', () => {
+    const seen = new Set<string>();
+    for (const marker of markers) {
+      expect(seen.has(marker.primaryQuery)).toBe(false);
+      seen.add(marker.primaryQuery);
     }
   });
 

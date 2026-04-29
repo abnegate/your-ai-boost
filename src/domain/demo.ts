@@ -88,6 +88,7 @@ export const demoAnalysis: AnalysisResult = {
   preMonthlyAverage: preAverage,
   postMonthlyAverage: postAverage,
   months,
+  chartMonths: months.slice(Math.max(0, months.findIndex((m) => m.aiCommits > 0) - 6)),
   totalCommits,
   totalAiCommits,
   aiShare: totalAiCommits / totalCommits,

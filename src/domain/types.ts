@@ -42,6 +42,7 @@ export type AnalysisResult = {
   readonly preMonthlyAverage: number;
   readonly postMonthlyAverage: number;
   readonly months: readonly MonthlyBucket[];
+  readonly chartMonths: readonly MonthlyBucket[];
   readonly totalCommits: number;
   readonly totalAiCommits: number;
   readonly aiShare: number;

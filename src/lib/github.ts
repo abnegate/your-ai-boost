@@ -153,39 +153,27 @@ export async function searchAssistantCommits(
   octokit: Octokit,
   login: string,
 ): Promise<AssistantSearchResult[]> {
-  const results: AssistantSearchResult[] = [];
-
-  for (const marker of markers) {
-    let totalCount = 0;
-    let earliest: SearchCommitItem | null = null;
-    const samples: SearchCommitItem[] = [];
-
-    for (const query of marker.queries) {
+  // Run all assistant searches in parallel; each assistant has exactly two
+  // calls (oldest commit + most-recent samples) using the canonical query.
+  return Promise.all(
+    markers.map(async (marker): Promise<AssistantSearchResult> => {
       try {
-        const first = await searchCommitsForQuery(octokit, login, marker, query, 'asc', 1);
-        totalCount += first.totalCount;
-        const candidate = first.items[0];
-        if (candidate) {
-          if (!earliest || candidate.committedAt < earliest.committedAt) {
-            earliest = candidate;
-          }
-        }
-        const recent = await searchCommitsForQuery(octokit, login, marker, query, 'desc', 30);
-        for (const item of recent.items) samples.push(item);
+        const [first, recent] = await Promise.all([
+          searchCommitsForQuery(octokit, login, marker, marker.primaryQuery, 'asc', 1),
+          searchCommitsForQuery(octokit, login, marker, marker.primaryQuery, 'desc', 100),
+        ]);
+        return {
+          assistant: marker.assistant,
+          totalCount: first.totalCount,
+          first: first.items[0] ?? null,
+          samples: recent.items,
+        };
       } catch (error) {
         console.warn(`search failed for ${marker.label}`, error);
+        return { assistant: marker.assistant, totalCount: 0, first: null, samples: [] };
       }
-    }
-
-    results.push({
-      assistant: marker.assistant,
-      totalCount,
-      first: earliest,
-      samples,
-    });
-  }
-
-  return results;
+    }),
+  );
 }
 
 export function deriveFirstAiCommit(

@@ -125,11 +125,11 @@ export function DashboardPage() {
             <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
               <Card>
                 <CardHeader
-                  title="Monthly commits over time"
-                  description="The dashed line marks your first AI-assisted commit. The green line tracks AI commits per month."
+                  title="Monthly commits"
+                  description="6 months before your first AI commit through now. Dashed line marks patient zero; green line is AI commits per month."
                 />
                 <MonthlyChart
-                  months={result.months}
+                  months={result.chartMonths}
                   firstAiMonth={result.first.committedAt.slice(0, 7)}
                 />
               </Card>
@@ -148,7 +148,7 @@ export function DashboardPage() {
               <Card>
                 <CardHeader
                   title="Hour of day"
-                  description="When you commit AI-assisted work (UTC)."
+                  description="When you commit AI-assisted work, in your local time."
                 />
                 <HourHeatmap hours={result.hourHistogram} />
               </Card>
