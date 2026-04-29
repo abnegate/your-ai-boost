@@ -39,7 +39,7 @@ export async function fetchViewer(octokit: Octokit): Promise<GitHubViewer> {
 }
 
 type ContribQueryResponse = {
-  user: {
+  viewer: {
     contributionsCollection: {
       contributionCalendar: {
         weeks: Array<{
@@ -50,12 +50,15 @@ type ContribQueryResponse = {
         }>;
       };
     };
-  } | null;
+  };
 };
 
+// Query the authenticated viewer's own contribution graph. This includes their
+// private-repo contribution counts (without granting us access to private code)
+// as long as they have "Show private contributions" enabled on their profile.
 const contribQuery = /* GraphQL */ `
-  query Contributions($login: String!, $from: DateTime!, $to: DateTime!) {
-    user(login: $login) {
+  query Contributions($from: DateTime!, $to: DateTime!) {
+    viewer {
       contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
           weeks {
@@ -72,7 +75,6 @@ const contribQuery = /* GraphQL */ `
 
 export async function fetchDailyContributions(
   octokit: Octokit,
-  login: string,
   since: Date,
   until: Date,
 ): Promise<DailyContribution[]> {
@@ -87,16 +89,13 @@ export async function fetchDailyContributions(
     const clampedEnd = new Date(Math.min(windowEnd.getTime(), stop));
 
     const data = await octokit.graphql<ContribQueryResponse>(contribQuery, {
-      login,
       from: cursor.toISOString(),
       to: clampedEnd.toISOString(),
     });
 
-    if (data.user) {
-      for (const week of data.user.contributionsCollection.contributionCalendar.weeks) {
-        for (const day of week.contributionDays) {
-          result.push({ date: day.date, count: day.contributionCount });
-        }
+    for (const week of data.viewer.contributionsCollection.contributionCalendar.weeks) {
+      for (const day of week.contributionDays) {
+        result.push({ date: day.date, count: day.contributionCount });
       }
     }
 

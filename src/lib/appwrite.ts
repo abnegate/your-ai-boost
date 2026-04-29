@@ -7,7 +7,12 @@ export const appwriteClient = new Client()
 
 export const account = new Account(appwriteClient);
 
-export const githubScopes = ['read:user', 'user:email', 'repo'] as const;
+// Minimal scopes: we only read public commit messages (via /search/commits) and
+// the viewer's own contribution graph (via GraphQL `viewer.contributionsCollection`).
+// Private repo commits are intentionally out of scope — that would require `repo`,
+// which grants read+write to all repo data. read:user is enough for profile info
+// and unlocks higher API rate limits than fully unauthenticated requests.
+export const githubScopes = ['read:user'] as const;
 
 export function loginWithGitHub(): void {
   account.createOAuth2Session({
