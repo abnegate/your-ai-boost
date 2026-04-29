@@ -85,6 +85,15 @@ describe('detectAssistant', () => {
     expect(detectAssistant('Co-Authored-By: Tabnine <tabnine@tabnine.com>')).toBe('tabnine');
   });
 
+  test('detects OpenAI Codex variants', () => {
+    expect(detectAssistant('feat: x\n\nCo-Authored-By: openai-codex <codex@openai.com>')).toBe(
+      'codex',
+    );
+    expect(detectAssistant('chore: y\n\nCo-Authored-By: codex')).toBe('codex');
+    expect(detectAssistant('fix: z\n\nGenerated with OpenAI Codex')).toBe('codex');
+    expect(detectAssistant('feat: w\n\nfrom: chatgpt-codex-connector[bot]')).toBe('codex');
+  });
+
   test('detects bot-account email signatures (the wider trap)', () => {
     expect(detectAssistant('chore: bump deps\n\nfrom: copilot@github.com')).toBe('copilot');
     expect(detectAssistant('feat: thing\n\ncopilot-swe-agent ran the test suite')).toBe('copilot');
