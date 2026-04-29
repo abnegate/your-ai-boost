@@ -11,7 +11,8 @@
     "test": "bun test",
     "lint": "bun x eslint .",
     "typecheck": "bun x tsc --noEmit",
-    "screenshots": "bun run scripts/screenshot.ts"
+    "screenshots": "bun run scripts/screenshot.ts",
+    "create-github-app": "bun run scripts/create-github-app.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.6",

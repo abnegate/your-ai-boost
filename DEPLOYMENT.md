@@ -50,12 +50,24 @@ Appwrite OAuth requires every origin that calls `account.createOAuth2Session` to
 1. **Project Settings → Platforms → Add Platform → Web**
 2. Add the site origin (e.g. `https://your-ai-boost.appwrite.network`) and `http://localhost:5173` for local dev.
 
-## Configure GitHub OAuth provider
+## Configure GitHub OAuth provider (using a GitHub App)
 
-1. **Project Settings → Auth → Settings → OAuth2 Providers → GitHub**
-2. Create a GitHub OAuth App (`https://github.com/settings/developers`).
-   - Authorization callback URL: copy the value Appwrite shows in the GitHub provider panel (looks like `https://syd.cloud.appwrite.io/v1/account/sessions/oauth2/callback/github/69f167e7001144ec353a`).
-3. Paste the GitHub App ID and Secret into the Appwrite GitHub provider, enable it.
+We deliberately use a GitHub **App** (not an OAuth App) so we can request `contents: read` only — read-only commit access — instead of the classic OAuth `repo` scope which is read+write everything.
+
+```bash
+bun run create-github-app
+```
+
+That script:
+1. Spins up `http://localhost:8765/`.
+2. Opens it in your browser. You click **Create on GitHub →**, GitHub shows the manifest summary, you click **Create GitHub App for &lt;account&gt;**.
+3. GitHub redirects back to `localhost:8765/callback?code=…`.
+4. Script exchanges the code for credentials via `POST /app-manifests/{code}/conversions`.
+5. Prints the `client_id` / `client_secret`, and saves the full payload (including the PEM private key) to `.github-app-credentials.json` (gitignored).
+
+Then:
+- **Install the app on your account** at the install URL the script prints (`https://github.com/apps/<name>/installations/new`). Pick **All repositories** so the AI marker scan covers everything.
+- **In Appwrite Console → Auth → Settings → OAuth2 Providers → GitHub:** paste the `client_id` into App ID and `client_secret` into App Secret, enable it.
 
 ## Build details
 

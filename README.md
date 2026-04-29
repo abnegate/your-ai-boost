@@ -29,7 +29,7 @@ Every screen state below was captured by Playwright against the actual built app
 - **Runtime / package manager / bundler / test runner:** Bun 1.3
 - **UI:** React 19 with `react-router` 7, TanStack Query 5, Recharts 3
 - **Styling:** Tailwind CSS v4 (CSS-first `@theme` tokens, compiled via `@tailwindcss/cli`)
-- **Auth:** Appwrite Web SDK 25 → GitHub OAuth (`read:user` only — no `repo` scope, we don't read your code)
+- **Auth:** Appwrite Web SDK 25 → **GitHub App** (not classic OAuth App) with `contents: read` + `metadata: read` only. No write access anywhere.
 - **GitHub data:** Octokit (REST + GraphQL)
 - **TypeScript:** strict, `verbatimModuleSyntax`, `noUncheckedIndexedAccess`, `noImplicitOverride`, `erasableSyntaxOnly`
 - **Tests:** `bun test` against pure-domain modules (analyzer + markers + format) — 25 tests, 84 expectations
@@ -81,12 +81,13 @@ The dashboard accepts a `?demo=` query string for screenshots and design review 
 3. **Compute the multiplier**: average monthly commits before vs. after that date, using `viewer.contributionsCollection` (which counts both public and private contributions toward the daily totals — without granting us access to private code). Result rounded to 1 decimal.
 4. **Surface insights**: assistant mix, AI commit share, longest streak, peak hour / weekday, dev-days reclaimed, and the original "patient zero" commit message.
 
-### Why we don't ask for `repo` scope
+### Why a GitHub App (not an OAuth App)
 
-GitHub's `repo` scope grants **read+write to all repository data** — code, issues, PRs, wikis, settings, webhooks, deploy keys. Asking for that to count commit messages is wildly disproportionate. Instead this app uses `read:user` only:
+GitHub's classic `repo` OAuth scope is read+write to all repo data: code, issues, PRs, wikis, settings, webhooks, deploy keys, collaboration invites. There is no read-only equivalent in classic OAuth scopes — it's `repo` (everything) or nothing.
 
-- Contribution graph (daily counts, public + private) — works because the **viewer** is querying their own data via `viewer.contributionsCollection`.
-- AI marker detection — uses `/search/commits` over **public commits only**. Private commits are excluded from marker counts. The numerator may be lower than reality if you commit a lot privately, but the multiplier (which is based on contribution counts, not search results) is unaffected.
+GitHub Apps let you request only `contents: read` (commit metadata + file contents) and `metadata: read`. So that's what we use. The consent screen the user sees lists exactly two read-only permissions, no write access, no settings access.
+
+To register the GitHub App for a fresh deploy, run `bun run create-github-app`. The script spins up a localhost callback, opens GitHub's manifest-confirmation page, captures the resulting `client_id`/`client_secret` automatically, and tells you exactly where to paste them in Appwrite.
 
 All GitHub data is fetched directly from the user's browser using the OAuth access token returned by Appwrite — nothing is persisted server-side by this app.
 

@@ -18,6 +18,7 @@ dist-ssr
 .screenshots
 test-results
 public/style.css
+.github-app-credentials.json
 
 # Editor directories and files
 .vscode/*
