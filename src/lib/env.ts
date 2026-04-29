@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
 const schema = z.object({
-  VITE_APPWRITE_ENDPOINT: z.string().url(),
-  VITE_APPWRITE_PROJECT_ID: z.string().min(1),
+  PUBLIC_APPWRITE_ENDPOINT: z.string().url(),
+  PUBLIC_APPWRITE_PROJECT_ID: z.string().min(1),
 });
 
-const parsed = schema.safeParse(import.meta.env);
+const parsed = schema.safeParse({
+  PUBLIC_APPWRITE_ENDPOINT: process.env.PUBLIC_APPWRITE_ENDPOINT,
+  PUBLIC_APPWRITE_PROJECT_ID: process.env.PUBLIC_APPWRITE_PROJECT_ID,
+});
 
 if (!parsed.success) {
   console.error('Invalid environment variables', parsed.error.flatten().fieldErrors);
@@ -13,8 +16,8 @@ if (!parsed.success) {
 }
 
 export const env = Object.freeze({
-  appwriteEndpoint: parsed.data.VITE_APPWRITE_ENDPOINT,
-  appwriteProjectId: parsed.data.VITE_APPWRITE_PROJECT_ID,
+  appwriteEndpoint: parsed.data.PUBLIC_APPWRITE_ENDPOINT,
+  appwriteProjectId: parsed.data.PUBLIC_APPWRITE_PROJECT_ID,
   redirectSuccess: `${window.location.origin}/callback`,
   redirectFailure: `${window.location.origin}/?auth=failed`,
 });

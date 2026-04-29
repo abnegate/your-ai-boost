@@ -57,9 +57,9 @@ Appwrite OAuth requires every origin that calls `account.createOAuth2Session` to
 
 ## Build details
 
-- Framework: React (Vite)
-- Node runtime: `node-22`
-- Install: `pnpm install`
-- Build: `pnpm build`
+- Framework: React (Bun bundler — `Bun.build` with HTML entrypoint)
+- Build runtime: `bun-1.3` (Appwrite Sites runtime)
+- Install: `bun install`
+- Build: `bun run build`
 - Output: `./dist`
 - Adapter: `static` (single-page-app fallback to `index.html`)
