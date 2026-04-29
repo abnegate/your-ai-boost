@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { Card } from '~/components/ui/Card';
 
 type EmptyStateProps = {
   readonly title: string;
@@ -9,12 +8,21 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <Card className="text-center py-12">
-      <h2 className="text-lg font-semibold text-[var(--color-text-strong)]">{title}</h2>
+    <div className="panel crosshairs relative px-6 py-16 text-center">
+      <span className="ch-tr" />
+      <span className="ch-br" />
+      <div className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-muted)] mb-4">
+        ◇ Nothing to plot
+      </div>
+      <h2 className="display italic text-[36px] text-[var(--color-paper)] leading-tight">
+        {title}
+      </h2>
       {description && (
-        <p className="text-sm text-[var(--color-muted)] mt-2 max-w-md mx-auto">{description}</p>
+        <p className="text-[14px] text-[var(--color-text)] mt-3 max-w-md mx-auto leading-relaxed">
+          {description}
+        </p>
       )}
       {action && <div className="mt-6 flex justify-center">{action}</div>}
-    </Card>
+    </div>
   );
 }

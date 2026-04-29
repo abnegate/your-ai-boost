@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 import type { AnalysisResult } from '~/domain/types';
-import { Badge } from '~/components/ui/Badge';
-import { Card, CardHeader } from '~/components/ui/Card';
 import { formatDate, formatMonth, formatNumber, formatPercent } from '~/lib/format';
 
 type InsightsListProps = {
@@ -10,6 +8,7 @@ type InsightsListProps = {
 
 type Insight = {
   readonly id: string;
+  readonly index: string;
   readonly title: string;
   readonly value: ReactNode;
   readonly hint?: ReactNode;
@@ -47,10 +46,13 @@ function busiestDayLabel(counts: readonly number[]): string {
   return weekdayNames[bestIndex] ?? '—';
 }
 
+const circled = ['❶', '❷', '❸', '❹', '❺', '❻'];
+
 export function InsightsList({ result }: InsightsListProps) {
   const insights: Insight[] = [
     {
       id: 'first',
+      index: '01',
       title: 'First AI-assisted commit',
       value: result.first ? formatDate(result.first.committedAt) : '—',
       hint: result.first ? (
@@ -58,7 +60,7 @@ export function InsightsList({ result }: InsightsListProps) {
           href={result.first.htmlUrl}
           target="_blank"
           rel="noreferrer"
-          className="text-[var(--color-accent)] hover:underline"
+          className="font-mono text-[11px] text-[var(--color-accent)] hover:underline"
         >
           {result.first.repository} · {result.first.sha.slice(0, 7)}
         </a>
@@ -68,72 +70,101 @@ export function InsightsList({ result }: InsightsListProps) {
     },
     {
       id: 'best',
+      index: '02',
       title: 'Best post-AI month',
-      value: result.bestMonth ? `${formatNumber(result.bestMonth.commits)} commits` : '—',
-      hint: result.bestMonth ? formatMonth(result.bestMonth.yearMonth) : null,
+      value: result.bestMonth ? `${formatNumber(result.bestMonth.commits)}` : '—',
+      hint: result.bestMonth ? `commits in ${formatMonth(result.bestMonth.yearMonth)}` : null,
     },
     {
       id: 'streak',
-      title: 'Consecutive months using AI',
-      value: `${result.currentStreakMonths} mo current`,
-      hint: `Longest streak: ${result.longestStreakMonths} months`,
+      index: '03',
+      title: 'Streak of months using AI',
+      value: `${result.currentStreakMonths}`,
+      hint: `current · longest streak ${result.longestStreakMonths} months`,
     },
     {
       id: 'share',
+      index: '04',
       title: 'AI share of all commits',
       value: formatPercent(result.aiShare, 1),
       hint: `${formatNumber(result.totalAiCommits)} of ${formatNumber(result.totalCommits)} commits across all repos`,
     },
     {
       id: 'rhythm',
-      title: 'Peak AI commit window',
+      index: '05',
+      title: 'Peak commit window',
       value: busiestHourLabel(result.hourHistogram),
-      hint: `Most active day: ${busiestDayLabel(result.dayOfWeekHistogram)}`,
+      hint: `most active day · ${busiestDayLabel(result.dayOfWeekHistogram)}`,
     },
     {
       id: 'days',
+      index: '06',
       title: 'Estimated dev-days reclaimed',
-      value: `${result.daysSavedEstimate.toFixed(1)} days`,
-      hint: 'Assuming ~25 minutes saved per AI-assisted commit, 8h workdays.',
+      value: result.daysSavedEstimate.toFixed(1),
+      hint: '@ ~25 minutes saved per AI-assisted commit, 8h workdays',
     },
   ];
 
   return (
-    <Card>
-      <CardHeader
-        title="Pattern insights"
-        description="Signals derived from your AI-marked commit history."
-      />
-      <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
-        {insights.map((insight) => (
-          <li key={insight.id} className="flex flex-col gap-1">
-            <span className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-              {insight.title}
+    <div className="grid grid-cols-12 gap-6">
+      {/* Notes */}
+      <ol className="col-span-12 lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+        {insights.map((insight, i) => (
+          <li
+            key={insight.id}
+            className="flex gap-3 pt-3 border-t border-dashed border-[var(--color-border)]"
+          >
+            <span
+              aria-hidden
+              className="font-mono text-[14px] text-[var(--color-accent)] mt-0.5 select-none"
+            >
+              {circled[i] ?? insight.index}
             </span>
-            <span className="text-lg font-semibold text-[var(--color-text-strong)] tabular-nums">
-              {insight.value}
-            </span>
-            {insight.hint && (
-              <span className="text-xs text-[var(--color-muted)]">{insight.hint}</span>
-            )}
+            <div className="flex flex-col gap-1.5 min-w-0">
+              <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)]">
+                {insight.title}
+              </span>
+              <span className="display italic text-[34px] leading-[0.95] text-[var(--color-paper)] tabular-nums">
+                {insight.value}
+              </span>
+              {insight.hint && (
+                <span className="text-[12px] text-[var(--color-muted)] leading-relaxed">
+                  {insight.hint}
+                </span>
+              )}
+            </div>
           </li>
         ))}
-      </ul>
+      </ol>
+
+      {/* Patient zero — exhibit card */}
       {result.first && (
-        <div className="mt-6 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-2)] p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Badge tone="accent" dot>
+        <aside className="col-span-12 lg:col-span-4 panel p-5 flex flex-col gap-3 self-start">
+          <div className="flex items-baseline justify-between pb-3 border-b border-[var(--color-border)]">
+            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-accent)]">
+              Exhibit A
+            </span>
+            <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-muted)]">
               Patient zero
-            </Badge>
-            <span className="text-xs text-[var(--color-muted)]">
-              Your first AI-assisted commit message
             </span>
           </div>
-          <pre className="text-xs text-[var(--color-text)] whitespace-pre-wrap font-mono leading-relaxed max-h-32 overflow-y-auto">
-            {result.first.message.split('\n').slice(0, 8).join('\n')}
+          <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[var(--color-muted)] tabular-nums">
+            {formatDate(result.first.committedAt)} · {result.first.repository} ·{' '}
+            {result.first.sha.slice(0, 7)}
+          </div>
+          <pre className="text-[12px] text-[var(--color-text)] whitespace-pre-wrap font-mono leading-[1.55] max-h-44 overflow-y-auto pl-3 border-l border-[var(--color-accent)] bg-[var(--color-surface-2)] py-2 pr-2">
+            {result.first.message.split('\n').slice(0, 10).join('\n')}
           </pre>
-        </div>
+          <a
+            href={result.first.htmlUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="self-end font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-paper)]"
+          >
+            Open on GitHub ↗
+          </a>
+        </aside>
       )}
-    </Card>
+    </div>
   );
 }

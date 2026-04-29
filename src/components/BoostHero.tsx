@@ -1,5 +1,4 @@
 import type { AnalysisResult } from '~/domain/types';
-import { Badge } from '~/components/ui/Badge';
 import { formatDate, formatMultiplier, formatNumber } from '~/lib/format';
 
 type BoostHeroProps = {
@@ -21,57 +20,119 @@ export function BoostHero({ result }: BoostHeroProps) {
   const verdict = multiplierVerdict(result.multiplier);
 
   return (
-    <section className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] p-8 sm:p-12">
-      <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none" aria-hidden />
-      <div className="relative flex flex-col gap-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="accent" dot>
-            AI co-pilot detected
-          </Badge>
-          {result.first && (
-            <Badge tone="neutral">
-              Started {formatDate(result.first.committedAt)} · {result.first.repository}
-            </Badge>
-          )}
+    <section className="relative">
+      {/* Specimen tag — top of the hero */}
+      <div className="flex items-end justify-between gap-4 pb-3 border-b border-[var(--color-rule)]">
+        <div className="flex items-baseline gap-3">
+          <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-accent)]">
+            Specimen 01 ▎
+          </span>
+          <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-muted)]">
+            The Multiplier
+          </span>
         </div>
-
-        <div className="flex flex-col gap-2">
-          <h1 className="text-[15px] font-medium text-[var(--color-muted)] uppercase tracking-[0.18em]">
-            AI has made you a
-          </h1>
-          <p className="text-[clamp(72px,14vw,168px)] leading-none font-semibold tracking-[-0.04em] text-[var(--color-text-strong)] tabular-nums">
-            {formattedMultiplier}
-          </p>
-          <p className="text-lg sm:text-xl text-[var(--color-text)] max-w-2xl">{verdict}</p>
-        </div>
-
-        <dl className="grid sm:grid-cols-3 gap-4 mt-2 max-w-3xl">
-          <div className="flex flex-col gap-1">
-            <dt className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-              Pre-AI monthly average
-            </dt>
-            <dd className="text-xl font-semibold text-[var(--color-text-strong)] tabular-nums">
-              {formatNumber(Math.round(result.preMonthlyAverage))} commits
-            </dd>
-          </div>
-          <div className="flex flex-col gap-1">
-            <dt className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-              Post-AI monthly average
-            </dt>
-            <dd className="text-xl font-semibold text-[var(--color-text-strong)] tabular-nums">
-              {formatNumber(Math.round(result.postMonthlyAverage))} commits
-            </dd>
-          </div>
-          <div className="flex flex-col gap-1">
-            <dt className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-              AI-marked commits
-            </dt>
-            <dd className="text-xl font-semibold text-[var(--color-text-strong)] tabular-nums">
-              {formatNumber(result.totalAiCommits)}
-            </dd>
-          </div>
-        </dl>
+        {result.first && (
+          <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-muted)] tabular-nums">
+            patient zero · {formatDate(result.first.committedAt)} ·{' '}
+            <a
+              href={result.first.htmlUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--color-text)] hover:text-[var(--color-accent)]"
+            >
+              {result.first.repository}
+            </a>
+          </span>
+        )}
       </div>
+
+      <div className="relative crosshairs px-4 sm:px-10 pt-10 pb-12">
+        <span className="ch-tr" />
+        <span className="ch-br" />
+        <div className="absolute inset-0 dot-grid opacity-50 pointer-events-none" aria-hidden />
+
+        <div className="relative grid grid-cols-12 gap-6">
+          {/* Left side: prompt label */}
+          <div className="col-span-12 sm:col-span-3 flex sm:flex-col gap-2 sm:items-end sm:text-right justify-between sm:justify-start">
+            <div>
+              <div className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--color-muted)]">
+                A.I. has made
+              </div>
+              <div className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--color-muted)]">
+                you a
+              </div>
+            </div>
+            <div className="hidden sm:block font-mono text-[10px] text-[var(--color-muted)] tabular-nums">
+              ↳ rounded ¹⁄₁₀
+            </div>
+          </div>
+
+          {/* The number */}
+          <div className="col-span-12 sm:col-span-9 flex flex-col gap-6">
+            <h1
+              className="display ink-rise text-[clamp(96px,22vw,260px)] italic font-normal text-[var(--color-paper)] tracking-[-0.04em]"
+              aria-label={`AI multiplier: ${formattedMultiplier}`}
+            >
+              {formattedMultiplier}
+            </h1>
+            <p className="display italic text-[clamp(20px,2.4vw,32px)] text-[var(--color-text)] leading-snug max-w-3xl">
+              “{verdict}”
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom strip — three vital signs in a row, separated by hairlines */}
+      <dl className="grid grid-cols-3 border-t border-[var(--color-rule)]">
+        <Vital
+          label="Pre-AI baseline"
+          value={`${formatNumber(Math.round(result.preMonthlyAverage))}`}
+          unit="commits / month"
+        />
+        <Vital
+          label="Post-AI cadence"
+          value={`${formatNumber(Math.round(result.postMonthlyAverage))}`}
+          unit="commits / month"
+          accent
+        />
+        <Vital
+          label="Marked AI commits"
+          value={formatNumber(result.totalAiCommits)}
+          unit={`of ${formatNumber(result.totalCommits)} total`}
+        />
+      </dl>
     </section>
+  );
+}
+
+function Vital({
+  label,
+  value,
+  unit,
+  accent,
+}: {
+  readonly label: string;
+  readonly value: string;
+  readonly unit: string;
+  readonly accent?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-2 px-4 sm:px-6 py-5 border-r border-[var(--color-rule)] last:border-r-0">
+      <dt className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)]">
+        {label}
+      </dt>
+      <dd className="flex items-baseline gap-2">
+        <span
+          className={`text-2xl sm:text-3xl font-medium tabular-nums tracking-tight ${
+            accent ? 'text-[var(--color-accent-ink)]' : 'text-[var(--color-text-strong)]'
+          }`}
+        >
+          {value}
+        </span>
+        <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[var(--color-muted)]">
+          {unit}
+        </span>
+      </dd>
+    </div>
   );
 }

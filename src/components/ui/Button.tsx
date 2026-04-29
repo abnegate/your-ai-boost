@@ -13,19 +13,19 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-[var(--color-accent)] text-[var(--color-text-strong)] hover:bg-[#7aa2ff] active:bg-[#4f7ee6] disabled:bg-[var(--color-accent-soft)] disabled:text-[var(--color-muted)]',
+    'bg-[var(--color-paper)] text-[var(--color-canvas)] hover:bg-white border border-[var(--color-paper)]',
   secondary:
-    'bg-[var(--color-surface-2)] text-[var(--color-text)] hover:bg-[var(--color-surface-3)] border border-[var(--color-border-strong)]',
+    'bg-transparent text-[var(--color-text)] hover:bg-[var(--color-surface-2)] border border-[var(--color-border-strong)]',
   ghost:
-    'bg-transparent text-[var(--color-text)] hover:bg-[var(--color-surface-2)] border border-transparent hover:border-[var(--color-border)]',
+    'bg-transparent text-[var(--color-muted)] hover:text-[var(--color-paper)] border border-transparent',
   danger:
-    'bg-[var(--color-danger)] text-[var(--color-text-strong)] hover:bg-[#ff8298] active:bg-[#e9596f]',
+    'bg-transparent text-[var(--color-danger)] hover:bg-[color-mix(in_oklab,var(--color-danger)_15%,transparent)] border border-[var(--color-danger)]',
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: 'h-8 px-3 text-sm rounded-[var(--radius-sm)] gap-1.5',
-  md: 'h-10 px-4 text-sm rounded-[var(--radius-md)] gap-2',
-  lg: 'h-12 px-6 text-base rounded-[var(--radius-md)] gap-2.5',
+  sm: 'h-8 px-3 text-[12px] gap-1.5',
+  md: 'h-10 px-4 text-[13px] gap-2',
+  lg: 'h-12 px-5 text-[14px] gap-2.5',
 };
 
 export function Button({
@@ -41,7 +41,9 @@ export function Button({
     <button
       {...rest}
       className={cn(
-        'inline-flex items-center justify-center font-medium select-none transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap',
+        'inline-flex items-center justify-center font-medium select-none transition-colors duration-150',
+        'rounded-[var(--radius-sm)] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap',
+        'tracking-tight',
         variantClasses[variant],
         sizeClasses[size],
         className,

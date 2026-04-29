@@ -8,24 +8,21 @@ type LogoProps = {
 export function Logo({ className, compact }: LogoProps) {
   return (
     <span
-      className={cn('inline-flex items-center gap-2.5 font-semibold tracking-tight', className)}
+      className={cn('inline-flex items-baseline gap-2.5 select-none', className)}
+      aria-label="your AI boost"
     >
-      <span className="size-7 rounded-[10px] bg-[var(--color-surface-2)] border border-[var(--color-border-strong)] grid place-items-center">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-          <path
-            d="M4 18 L10 6 L14 14 L20 4"
-            stroke="var(--color-accent)"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="20" cy="4" r="1.8" fill="var(--color-accent)" />
-        </svg>
+      <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-muted)]">
+        ◆ A.I. Boost
       </span>
       {!compact && (
-        <span className="text-[15px] text-[var(--color-text-strong)]">
-          your <span className="text-[var(--color-accent)]">AI</span> boost
-        </span>
+        <>
+          <span className="display italic text-[20px] leading-none text-[var(--color-paper)]">
+            yours
+          </span>
+          <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-muted)]">
+            / vol.&nbsp;1
+          </span>
+        </>
       )}
     </span>
   );

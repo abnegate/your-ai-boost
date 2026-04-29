@@ -9,7 +9,6 @@ import { EmptyState } from '~/components/EmptyState';
 import { InsightsList } from '~/components/InsightsList';
 import { AppShell } from '~/components/layout/AppShell';
 import { Button } from '~/components/ui/Button';
-import { Card, CardHeader } from '~/components/ui/Card';
 import { Spinner } from '~/components/ui/Spinner';
 import { demoAnalysis } from '~/domain/demo';
 import type { AnalysisResult } from '~/domain/types';
@@ -79,22 +78,8 @@ export function DashboardPage() {
 
   return (
     <AppShell githubLogin={viewer?.login} avatarUrl={viewer?.avatarUrl}>
-      <div className="mx-auto max-w-6xl px-6 py-10 flex flex-col gap-8">
-        {isLoading && (
-          <Card>
-            <div className="flex items-center gap-3 py-6">
-              <Spinner />
-              <div>
-                <div className="text-sm font-medium text-[var(--color-text-strong)]">
-                  Scanning your commit history
-                </div>
-                <div className="text-xs text-[var(--color-muted)] mt-0.5">
-                  Reading contribution graph and searching for AI markers across all your repos.
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
+      <div className="mx-auto max-w-[1280px] px-6 py-8 flex flex-col gap-12">
+        {isLoading && <ScanningPanel />}
 
         {errorMessage && (
           <EmptyState
@@ -122,47 +107,137 @@ export function DashboardPage() {
           <>
             <BoostHero result={result} />
 
-            <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
-              <Card>
-                <CardHeader
-                  title="Monthly commits"
-                  description="6 months before your first AI commit through now. Dashed line marks patient zero; green line is AI commits per month."
-                />
-                <MonthlyChart
-                  months={result.chartMonths}
-                  firstAiMonth={result.first.committedAt.slice(0, 7)}
-                />
-              </Card>
-              <Card>
-                <CardHeader
-                  title="Assistant mix"
-                  description="Share of AI-marked commits by tool."
-                />
-                <AssistantBreakdown assistants={result.assistants} />
-              </Card>
-            </div>
+            {/* TIMESERIES */}
+            <section>
+              <SectionRule index="01" title="Timeseries">
+                <span>6 mo before patient zero · onward · {result.chartMonths.length} buckets</span>
+              </SectionRule>
+              <div className="grid grid-cols-12 gap-6 pt-6">
+                <div className="col-span-12 lg:col-span-8 panel p-5">
+                  <PanelHead
+                    eyebrow="Plate I"
+                    title="Monthly commits"
+                    sub="Dashed line marks patient zero. Green line: AI-marked commits / month."
+                  />
+                  <MonthlyChart
+                    months={result.chartMonths}
+                    firstAiMonth={result.first.committedAt.slice(0, 7)}
+                  />
+                </div>
+                <div className="col-span-12 lg:col-span-4 panel p-5">
+                  <PanelHead
+                    eyebrow="Plate II"
+                    title="Assistant mix"
+                    sub="Share of AI-marked commits, by tool."
+                  />
+                  <AssistantBreakdown assistants={result.assistants} />
+                </div>
+              </div>
+            </section>
 
-            <InsightsList result={result} />
+            {/* FIELD NOTES */}
+            <section>
+              <SectionRule index="02" title="Field notes">
+                <span>derived signals · annotated</span>
+              </SectionRule>
+              <div className="pt-6">
+                <InsightsList result={result} />
+              </div>
+            </section>
 
-            <div className="grid lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader
-                  title="Hour of day"
-                  description="When you commit AI-assisted work, in your local time."
-                />
-                <HourHeatmap hours={result.hourHistogram} />
-              </Card>
-              <Card>
-                <CardHeader
-                  title="Day of week"
-                  description="AI-marked commits by weekday across the sample."
-                />
-                <WeekdayBars counts={result.dayOfWeekHistogram} />
-              </Card>
-            </div>
+            {/* CADENCE */}
+            <section>
+              <SectionRule index="03" title="Cadence">
+                <span>local time · last {result.totalAiCommits.toLocaleString()} samples</span>
+              </SectionRule>
+              <div className="grid grid-cols-12 gap-6 pt-6">
+                <div className="col-span-12 lg:col-span-7 panel p-5">
+                  <PanelHead eyebrow="Plate III" title="Hour of day" sub="Your local time." />
+                  <HourHeatmap hours={result.hourHistogram} />
+                </div>
+                <div className="col-span-12 lg:col-span-5 panel p-5">
+                  <PanelHead
+                    eyebrow="Plate IV"
+                    title="Weekday"
+                    sub="AI-marked commits by weekday."
+                  />
+                  <WeekdayBars counts={result.dayOfWeekHistogram} />
+                </div>
+              </div>
+            </section>
           </>
         )}
       </div>
     </AppShell>
+  );
+}
+
+function SectionRule({
+  index,
+  title,
+  children,
+}: {
+  readonly index: string;
+  readonly title: string;
+  readonly children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 pt-5 border-t border-[var(--color-rule)]">
+      <div className="flex items-baseline gap-3">
+        <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-accent)]">
+          § {index}
+        </span>
+        <span className="display italic text-[26px] text-[var(--color-paper)] leading-none">
+          {title}
+        </span>
+      </div>
+      {children && (
+        <span className="hidden sm:block font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)] tabular-nums">
+          {children}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function PanelHead({
+  eyebrow,
+  title,
+  sub,
+}: {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly sub: string;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 mb-4 pb-3 border-b border-dashed border-[var(--color-border)]">
+      <div className="flex flex-col gap-0.5">
+        <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-accent)]">
+          {eyebrow}
+        </span>
+        <span className="text-[15px] font-medium text-[var(--color-paper)]">{title}</span>
+      </div>
+      <span className="hidden md:inline font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-muted)] max-w-[280px] text-right">
+        {sub}
+      </span>
+    </div>
+  );
+}
+
+function ScanningPanel() {
+  return (
+    <div className="panel p-6 flex items-center gap-5 crosshairs relative overflow-hidden">
+      <span className="ch-tr" />
+      <span className="ch-br" />
+      <Spinner />
+      <div className="flex flex-col gap-1">
+        <div className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--color-accent)]">
+          Now scanning
+        </div>
+        <div className="text-[14px] text-[var(--color-paper)]">
+          Reading your contribution graph and searching for AI markers across two years of commits.
+        </div>
+      </div>
+    </div>
   );
 }
