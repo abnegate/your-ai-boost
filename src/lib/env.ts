@@ -27,6 +27,9 @@ if (!parsed.success) {
 export const env = Object.freeze({
   appwriteEndpoint: parsed.data.PUBLIC_APPWRITE_ENDPOINT,
   appwriteProjectId: parsed.data.PUBLIC_APPWRITE_PROJECT_ID,
-  redirectSuccess: `${window.location.origin}/callback`,
+  // Appwrite sets the session cookie before redirecting, so the success URL
+  // just needs to be any real route on the app. Land on `/` and let the
+  // landing page bounce signed-in users to /dashboard.
+  redirectSuccess: `${window.location.origin}/`,
   redirectFailure: `${window.location.origin}/?auth=failed`,
 });
