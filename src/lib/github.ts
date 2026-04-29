@@ -73,24 +73,36 @@ const contribQuery = /* GraphQL */ `
   }
 `;
 
+export const lookbackYears = 2;
+
+// Walk backwards from `until` in 1-year windows, capped at `lookbackYears`.
+// `earliest` clips the lookback so we don't query before the account existed.
+// Walking backwards (instead of forwards from oldest) means we always have the
+// most recent data first — if a request fails partway we still get usable
+// recent history rather than ancient noise.
 export async function fetchDailyContributions(
   octokit: Octokit,
-  since: Date,
+  earliest: Date,
   until: Date,
 ): Promise<DailyContribution[]> {
-  const result: DailyContribution[] = [];
-  let cursor = new Date(Date.UTC(since.getUTCFullYear(), since.getUTCMonth(), since.getUTCDate()));
-  const stop = until.getTime();
+  const lookbackStart = new Date(until);
+  lookbackStart.setUTCFullYear(lookbackStart.getUTCFullYear() - lookbackYears);
+  const stop = new Date(Math.max(lookbackStart.getTime(), earliest.getTime()));
 
-  while (cursor.getTime() <= stop) {
-    const windowEnd = new Date(cursor.getTime());
-    windowEnd.setUTCFullYear(windowEnd.getUTCFullYear() + 1);
-    windowEnd.setUTCDate(windowEnd.getUTCDate() - 1);
-    const clampedEnd = new Date(Math.min(windowEnd.getTime(), stop));
+  const result: DailyContribution[] = [];
+  let windowEnd = new Date(until);
+
+  while (windowEnd.getTime() > stop.getTime()) {
+    const windowStart = new Date(windowEnd);
+    windowStart.setUTCFullYear(windowStart.getUTCFullYear() - 1);
+    windowStart.setUTCDate(windowStart.getUTCDate() + 1);
+    if (windowStart.getTime() < stop.getTime()) {
+      windowStart.setTime(stop.getTime());
+    }
 
     const data = await octokit.graphql<ContribQueryResponse>(contribQuery, {
-      from: cursor.toISOString(),
-      to: clampedEnd.toISOString(),
+      from: windowStart.toISOString(),
+      to: windowEnd.toISOString(),
     });
 
     for (const week of data.viewer.contributionsCollection.contributionCalendar.weeks) {
@@ -99,12 +111,14 @@ export async function fetchDailyContributions(
       }
     }
 
-    cursor = new Date(clampedEnd.getTime());
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
+    windowEnd = new Date(windowStart);
+    windowEnd.setUTCDate(windowEnd.getUTCDate() - 1);
   }
 
   const seen = new Set<string>();
-  return result.filter((d) => (seen.has(d.date) ? false : (seen.add(d.date), true)));
+  return result
+    .filter((d) => (seen.has(d.date) ? false : (seen.add(d.date), true)))
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 export type SearchCommitItem = {
@@ -130,8 +144,10 @@ async function searchCommitsForQuery(
   query: string,
   order: 'asc' | 'desc',
   perPage: number,
+  since?: Date,
 ): Promise<{ totalCount: number; items: SearchCommitItem[] }> {
-  const q = `author:${login} ${query}`;
+  const dateFilter = since ? ` author-date:>=${since.toISOString().slice(0, 10)}` : '';
+  const q = `author:${login} ${query}${dateFilter}`;
   const response = await octokit.request('GET /search/commits', {
     q,
     sort: 'author-date',
@@ -153,22 +169,24 @@ export async function searchAssistantCommits(
   octokit: Octokit,
   login: string,
 ): Promise<AssistantSearchResult[]> {
-  // Run all assistant searches in parallel; each assistant uses a single OR-
-  // unioned query so GitHub dedupes internally. Two requests per assistant:
-  // oldest match (for patient-zero detection) + most recent 100 (for
-  // histograms / sample insights).
+  // Window the marker search to the same lookback as the contribution graph.
+  // Patient zero uses an unrestricted asc query (cheap — single record) so
+  // we can still spot AI usage that started before the lookback window.
+  const since = new Date();
+  since.setUTCFullYear(since.getUTCFullYear() - lookbackYears);
+
   return Promise.all(
     markers.map(async (marker): Promise<AssistantSearchResult> => {
       const query = buildAssistantQuery(marker);
       try {
         const [first, recent] = await Promise.all([
           searchCommitsForQuery(octokit, login, marker, query, 'asc', 1),
-          searchCommitsForQuery(octokit, login, marker, query, 'desc', 100),
+          searchCommitsForQuery(octokit, login, marker, query, 'desc', 100, since),
         ]);
         return {
           assistant: marker.assistant,
-          totalCount: first.totalCount,
-          first: first.items[0] ?? null,
+          totalCount: recent.totalCount, // count within lookback window
+          first: first.items[0] ?? null, // patient zero from full history
           samples: recent.items,
         };
       } catch (error) {

@@ -155,9 +155,13 @@ export function analyze(input: AnalyzeInput): AnalysisResult {
   const totalsByMonth = bucketByMonth(daily);
   const aiByMonth = bucketAiCommitsByMonth(allAiSamples);
 
-  const accountStart = new Date(viewer.createdAt);
   const now = new Date();
-  const months = buildMonths(totalsByMonth, aiByMonth, accountStart, now);
+  // Window analysis to the actual fetched data range (rather than account
+  // creation), so months / averages reflect what we can see — not e.g. years
+  // of zeros for an account older than the lookback.
+  const dataStart =
+    daily.length > 0 ? new Date(`${daily[0]!.date}T00:00:00Z`) : new Date(viewer.createdAt);
+  const months = buildMonths(totalsByMonth, aiByMonth, dataStart, now);
 
   let totalCommits = 0;
   for (const day of daily) totalCommits += day.count;

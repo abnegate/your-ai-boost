@@ -13,12 +13,12 @@ export function AppShell({ children, githubLogin, avatarUrl }: AppShellProps) {
       <Header githubLogin={githubLogin} avatarUrl={avatarUrl} />
       <main className="flex-1">{children}</main>
       <footer className="border-t border-[var(--color-border)] py-6 text-center text-xs text-[var(--color-muted)]">
-        Built with Appwrite · Data stays in your browser · Source on{' '}
+        Last 2 years of commit history · Data stays in your browser · Built with Appwrite ·{' '}
         <a
-          href="https://github.com"
+          href="https://github.com/abnegate/your-ai-boost"
           className="text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors"
         >
-          GitHub
+          Source
         </a>
       </footer>
     </div>
