@@ -1,0 +1,94 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-canvas: #070b14;
+  --color-surface: #0c1322;
+  --color-surface-2: #111a2e;
+  --color-surface-3: #16213a;
+  --color-border: #1e2a45;
+  --color-border-strong: #2a3a5c;
+  --color-muted: #6c7a96;
+  --color-text: #d8e1f4;
+  --color-text-strong: #f5f8ff;
+  --color-accent: #5a8cff;
+  --color-accent-soft: #2c4a8a;
+  --color-success: #3fd9a3;
+  --color-warning: #f5c66b;
+  --color-danger: #ff6b81;
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --font-sans:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Cascadia Mono', monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    background: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(90, 140, 255, 0.06), transparent 40%),
+      radial-gradient(circle at 100% 0%, rgba(90, 140, 255, 0.04), transparent 35%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-text-strong);
+  }
+
+  button,
+  a {
+    cursor: pointer;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+}
+
+@layer components {
+  .glass {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(var(--color-border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: -1px -1px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "projectId": "69f167e7001144ec353a",
+  "projectName": "your-ai-boost",
+  "endpoint": "https://syd.cloud.appwrite.io/v1",
+  "sites": [
+    {
+      "$id": "your-ai-boost",
+      "name": "your-ai-boost",
+      "enabled": true,
+      "logging": true,
+      "framework": "react",
+      "buildRuntime": "node-22",
+      "adapter": "static",
+      "installCommand": "pnpm install",
+      "buildCommand": "pnpm build",
+      "outputDirectory": "./dist",
+      "fallbackFile": "index.html",
+      "timeout": 30,
+      "providerRootDirectory": "./",
+      "providerSilentMode": false,
+      "deploymentRetention": 30,
+      "vars": {
+        "VITE_APPWRITE_ENDPOINT": "https://syd.cloud.appwrite.io/v1",
+        "VITE_APPWRITE_PROJECT_ID": "69f167e7001144ec353a"
+      }
+    }
+  ]
+}
