@@ -73,21 +73,21 @@ const contribQuery = /* GraphQL */ `
   }
 `;
 
+// Lookback used for /search/commits only. The contribution graph is GraphQL
+// (5000 points/hour) and walking the user's full history costs ~1 query/year,
+// so we don't need to cap it — and capping it gave a misleadingly short
+// pre-AI baseline that distorted the multiplier.
 export const lookbackYears = 2;
 
-// Walk backwards from `until` in 1-year windows, capped at `lookbackYears`.
-// `earliest` clips the lookback so we don't query before the account existed.
-// Walking backwards (instead of forwards from oldest) means we always have the
-// most recent data first — if a request fails partway we still get usable
-// recent history rather than ancient noise.
+// Walk backwards from `until` in 1-year windows, all the way to `earliest`
+// (the account creation date). Backwards order means a partial failure still
+// leaves the most recent data, not ancient noise.
 export async function fetchDailyContributions(
   octokit: Octokit,
   earliest: Date,
   until: Date,
 ): Promise<DailyContribution[]> {
-  const lookbackStart = new Date(until);
-  lookbackStart.setUTCFullYear(lookbackStart.getUTCFullYear() - lookbackYears);
-  const stop = new Date(Math.max(lookbackStart.getTime(), earliest.getTime()));
+  const stop = new Date(earliest);
 
   const result: DailyContribution[] = [];
   let windowEnd = new Date(until);

@@ -156,11 +156,14 @@ export function analyze(input: AnalyzeInput): AnalysisResult {
   const aiByMonth = bucketAiCommitsByMonth(allAiSamples);
 
   const now = new Date();
-  // Window analysis to the actual fetched data range (rather than account
-  // creation), so months / averages reflect what we can see — not e.g. years
-  // of zeros for an account older than the lookback.
-  const dataStart =
-    daily.length > 0 ? new Date(`${daily[0]!.date}T00:00:00Z`) : new Date(viewer.createdAt);
+  // Build the month series from the start of the user's actual contribution
+  // history (first day with any commits) so the pre-AI baseline reflects the
+  // user's full coding life, not a windowed slice. Avoids leading zero months
+  // for accounts that went dormant for years.
+  const firstActiveDay = daily.find((d) => d.count > 0)?.date;
+  const dataStart = firstActiveDay
+    ? new Date(`${firstActiveDay}T00:00:00Z`)
+    : new Date(viewer.createdAt);
   const months = buildMonths(totalsByMonth, aiByMonth, dataStart, now);
 
   let totalCommits = 0;
