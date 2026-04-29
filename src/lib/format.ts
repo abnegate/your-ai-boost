@@ -25,7 +25,7 @@ export function formatCompact(value: number): string {
 
 export function formatMultiplier(value: number): string {
   if (!Number.isFinite(value) || value <= 0) return '—';
-  return `${value.toFixed(1)}x`;
+  return value.toFixed(1);
 }
 
 export function formatPercent(value: number, fractionDigits = 0): string {

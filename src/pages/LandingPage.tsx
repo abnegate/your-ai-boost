@@ -1,24 +1,22 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { AppShell } from '~/components/layout/AppShell';
+import { Badge } from '~/components/ui/Badge';
 import { useSession } from '~/hooks/useSession';
 import { loginWithGitHub } from '~/lib/appwrite';
 
 const features = [
   {
-    n: '01',
     title: 'Patient zero',
-    body: 'We trace the exact commit where AI first joined your workflow — Claude, Copilot, Cursor, Codex, Aider, Cline, Codeium, Devin, Sweep, Continue, GPT Engineer, Tabnine.',
+    body: 'We pinpoint the exact commit where AI first joined your workflow — Claude Code, Copilot, Cursor, Codex, Aider, Cline, Windsurf, and more.',
   },
   {
-    n: '02',
     title: 'The multiplier',
-    body: 'Average monthly commits before the marker, average after. One number, rounded to one decimal. Set in italic Instrument Serif because the number is the headline.',
+    body: 'Mean monthly commits before that marker, mean after. One number, rounded to a single decimal. Honest, hard to fake.',
   },
   {
-    n: '03',
-    title: 'Field notes',
-    body: 'Assistant mix, AI commit share, longest streak, peak hour and weekday in your local time, and a dev-days reclaimed estimate. Read it like a report.',
+    title: 'Field signals',
+    body: 'Assistant mix, AI commit share, longest streak, peak hour and weekday in your local time, and a dev-days-saved estimate.',
   },
 ];
 
@@ -45,146 +43,177 @@ export function LandingPage() {
 
   return (
     <AppShell>
-      {/* Hero */}
-      <section className="relative">
-        <div className="mx-auto max-w-[1280px] px-6 pt-12 pb-20">
-          {/* Title block — asymmetric */}
-          <div className="grid grid-cols-12 gap-6 items-end pb-16 border-b border-[var(--color-rule)]">
-            <div className="col-span-12 md:col-span-2 flex flex-col gap-1">
-              <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-accent)]">
-                Vol. 1 · No. 1
-              </span>
-              <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-muted)]">
-                a measurement
-              </span>
-            </div>
-            <h1 className="col-span-12 md:col-span-10 display text-[clamp(56px,10vw,140px)] italic leading-[0.92] tracking-[-0.025em] text-[var(--color-paper)]">
-              How many{' '}
-              <span className="text-[var(--color-accent)] not-italic font-mono text-[0.6em] align-middle">
-                ×
-              </span>{' '}
-              faster <br />
-              has A.I. made <em className="not-italic">you?</em>
+      <section className="mx-auto max-w-[1240px] px-6 pt-20 pb-24">
+        <div className="grid grid-cols-12 gap-8 items-start">
+          <div className="col-span-12 lg:col-span-7 flex flex-col gap-7">
+            <Badge tone="accent" dot>
+              v1 · open beta
+            </Badge>
+            <h1 className="text-[clamp(44px,7vw,80px)] font-semibold leading-[1.02] tracking-[-0.035em] text-[var(--color-text-strong)]">
+              How much faster has AI made you?
             </h1>
-          </div>
-
-          {/* Sub-grid: dek + CTA + meta */}
-          <div className="grid grid-cols-12 gap-6 pt-10">
-            <div className="col-span-12 md:col-span-7">
-              <p className="text-[19px] leading-[1.55] text-[var(--color-text)] max-w-[55ch]">
-                Sign in with GitHub. We pinpoint the first AI-assisted commit in your history, then
-                compute the multiplier on every month of output that came after. The number lives or
-                dies by your contribution graph &mdash; receipts attached.
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <button
-                  type="button"
-                  onClick={loginWithGitHub}
-                  className="group inline-flex items-center gap-3 pl-4 pr-5 h-12 bg-[var(--color-paper)] text-[var(--color-canvas)] rounded-[var(--radius-sm)] hover:bg-white transition-colors font-medium"
-                >
-                  <GitHubMark />
-                  <span>Continue with GitHub</span>
-                  <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[var(--color-muted)] group-hover:text-[var(--color-canvas)] transition-colors">
-                    →
-                  </span>
-                </button>
-                <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-muted)]">
-                  read-only · no code is read · token stays in browser
+            <p className="text-[18px] leading-[1.55] text-[var(--color-text)] max-w-[55ch]">
+              Sign in with GitHub. We find your first AI-assisted commit, then compute the
+              multiplier on every month of output that came after. Read-only — your token never
+              leaves the browser.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={loginWithGitHub}
+                className="group inline-flex items-center gap-2.5 pl-4 pr-5 h-11 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded-[var(--radius-md)] transition-colors font-medium text-[14px] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.16)]"
+              >
+                <GitHubMark />
+                <span>Continue with GitHub</span>
+                <span className="text-[16px] -mr-0.5 transition-transform group-hover:translate-x-0.5">
+                  →
+                </span>
+              </button>
+              <Link
+                to="/dashboard?demo=ready"
+                className="inline-flex items-center h-11 px-4 text-[14px] text-[var(--color-text-strong)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-border-strong)] rounded-[var(--radius-md)] transition-colors"
+              >
+                See a sample
+              </Link>
+            </div>
+            <p className="text-[12px] text-[var(--color-muted)]">
+              Read-only · GitHub App · no source is read · token stays local
+            </p>
+            {authFailed && (
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] border border-[color-mix(in_oklab,var(--color-danger)_45%,transparent)] bg-[color-mix(in_oklab,var(--color-danger)_8%,transparent)]">
+                <span className="size-1.5 rounded-full bg-[var(--color-danger)]" />
+                <span className="text-[13px] text-[var(--color-text-strong)]">
+                  Authentication failed.
+                </span>
+                <span className="text-[13px] text-[var(--color-muted-2)]">
+                  Try again or check the GitHub provider settings.
                 </span>
               </div>
+            )}
+          </div>
 
-              {authFailed && (
-                <div className="mt-6 flex items-baseline gap-3 border-l-2 border-[var(--color-danger)] pl-3">
-                  <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-danger)]">
-                    err 401
-                  </span>
-                  <span className="text-sm text-[var(--color-text)]">
-                    Authentication failed. Try again or check the GitHub provider settings.
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Specimen — a sample of the headline number */}
-            <div className="col-span-12 md:col-span-5 md:pl-6 md:border-l md:border-[var(--color-rule)] flex flex-col items-start md:items-end justify-between gap-3">
-              <div className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-muted)]">
-                Specimen / sample output
-              </div>
-              <div className="display italic text-[120px] leading-[0.9] text-[var(--color-paper)] tracking-[-0.04em]">
-                3.4×
-              </div>
-              <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)] tabular-nums max-w-[24ch] md:text-right">
-                ↳ pre-AI 22 commits / mo
-                <br />↳ post-AI 75 commits / mo
-              </div>
-            </div>
+          <div className="col-span-12 lg:col-span-5">
+            <SamplePreview />
           </div>
         </div>
       </section>
 
-      {/* Method */}
-      <section className="mx-auto max-w-[1280px] px-6">
-        <div className="section-rule">§ 01 — Method</div>
-        <div className="grid grid-cols-12 gap-x-6 gap-y-10 pt-8 pb-16">
-          {features.map((feature) => (
-            <article key={feature.n} className="col-span-12 md:col-span-4 group">
-              <div className="flex items-baseline gap-3 mb-3 pb-3 border-b border-[var(--color-border)]">
-                <span className="display italic text-[28px] text-[var(--color-accent)] leading-none">
-                  {feature.n}
-                </span>
-                <h3 className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--color-paper)]">
-                  {feature.title}
-                </h3>
-              </div>
-              <p className="text-[15px] leading-[1.65] text-[var(--color-text)]">{feature.body}</p>
+      <section className="mx-auto max-w-[1240px] px-6 pb-24">
+        <SectionHead
+          eyebrow="What it measures"
+          title="Three numbers that matter."
+          description="Designed to be skimmable in five seconds and defensible in five minutes."
+        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8">
+          {features.map((feature, i) => (
+            <article
+              key={feature.title}
+              className="surface edge-light p-6 flex flex-col gap-3 hover:border-[var(--color-border-strong)] transition-colors"
+            >
+              <span className="text-[12px] tabular-nums text-[var(--color-muted)] font-mono">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3 className="text-[15px] font-semibold text-[var(--color-text-strong)] tracking-tight">
+                {feature.title}
+              </h3>
+              <p className="text-[13px] text-[var(--color-muted-2)] leading-relaxed">
+                {feature.body}
+              </p>
             </article>
           ))}
         </div>
       </section>
 
-      {/* Markers we look for — laid out like a glossary */}
-      <section className="mx-auto max-w-[1280px] px-6 pb-20">
-        <div className="section-rule">§ 02 — Glossary of signatures</div>
-        <div className="grid grid-cols-12 gap-x-6 gap-y-2 pt-8">
-          <p className="col-span-12 md:col-span-4 text-[15px] leading-[1.65] text-[var(--color-text)]">
-            We scan commit messages for the canonical co-author trailers and bot signatures each
-            assistant leaves behind. The catalog is{' '}
-            <a
-              href="https://github.com/abnegate/your-ai-boost/blob/main/src/domain/markers.ts"
-              className="text-[var(--color-accent)] hover:underline"
-            >
-              open and tested
-            </a>
-            ; suggestions welcome.
-          </p>
-          <dl className="col-span-12 md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
-            {markers.map(([name, sig]) => (
-              <div
-                key={name}
-                className="flex items-baseline gap-3 border-b border-dashed border-[var(--color-border)] pb-2"
+      <section className="mx-auto max-w-[1240px] px-6 pb-24">
+        <SectionHead
+          eyebrow="Detection"
+          title="Signatures we look for."
+          description="Canonical co-author trailers and bot signatures left behind by each assistant."
+        />
+        <div className="grid grid-cols-12 gap-6 mt-8">
+          <div className="col-span-12 md:col-span-4">
+            <p className="text-[14px] leading-[1.65] text-[var(--color-muted-2)]">
+              The catalog is{' '}
+              <a
+                href="https://github.com/abnegate/your-ai-boost/blob/main/src/domain/markers.ts"
+                className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline underline-offset-4 decoration-[color-mix(in_oklab,var(--color-accent)_40%,transparent)]"
               >
-                <dt className="text-[14px] text-[var(--color-paper)] whitespace-nowrap">{name}</dt>
-                <span className="flex-1 border-b border-dotted border-[var(--color-border)] mx-1 translate-y-[-3px]" />
-                <dd className="font-mono text-[11px] text-[var(--color-muted)] whitespace-nowrap">
+                open and tested
+              </a>
+              . Suggestions welcome.
+            </p>
+          </div>
+          <ul className="col-span-12 md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {markers.map(([name, sig]) => (
+              <li
+                key={name}
+                className="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-border-strong)] transition-colors"
+              >
+                <span className="text-[13px] text-[var(--color-text-strong)] truncate">{name}</span>
+                <code className="text-[11px] text-[var(--color-muted)] font-mono truncate">
                   {sig}
-                </dd>
-              </div>
+                </code>
+              </li>
             ))}
-          </dl>
-        </div>
-      </section>
-
-      {/* Final masthead-ish strip */}
-      <section className="mx-auto max-w-[1280px] px-6 pb-12">
-        <div className="hatch h-[6px] mb-6" />
-        <div className="flex flex-wrap items-baseline justify-between gap-4 font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-muted)]">
-          <span>End of issue ◆</span>
-          <span>{new Date().toISOString().slice(0, 10)} · NZ&#8202;/&#8202;AKL</span>
-          <span>Set in Instrument Serif</span>
+          </ul>
         </div>
       </section>
     </AppShell>
+  );
+}
+
+function SectionHead({
+  eyebrow,
+  title,
+  description,
+}: {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly description: string;
+}) {
+  return (
+    <div className="flex flex-col gap-2 max-w-[60ch]">
+      <span className="text-[12px] font-medium text-[var(--color-accent)] tracking-tight">
+        {eyebrow}
+      </span>
+      <h2 className="text-[28px] font-semibold tracking-[-0.025em] text-[var(--color-text-strong)] leading-tight">
+        {title}
+      </h2>
+      <p className="text-[14px] text-[var(--color-muted-2)] leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function SamplePreview() {
+  return (
+    <div className="surface edge-light p-6 ambient">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-[12px] font-medium text-[var(--color-muted-2)]">Sample output</span>
+        <Badge tone="neutral">demo</Badge>
+      </div>
+      <div className="flex items-end gap-1 mb-4">
+        <span className="text-[96px] leading-[0.85] font-semibold tracking-[-0.05em] text-[var(--color-text-strong)] tabular-nums">
+          3.4
+        </span>
+        <span className="text-[64px] leading-[0.85] font-semibold tracking-[-0.05em] text-[var(--color-accent)] tabular-nums">
+          ×
+        </span>
+      </div>
+      <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[var(--color-divider)]">
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] text-[var(--color-muted)]">Pre-AI</span>
+          <span className="text-[16px] tabular-nums text-[var(--color-text)]">
+            22 <span className="text-[12px] text-[var(--color-muted)]">/ mo</span>
+          </span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-[11px] text-[var(--color-muted)]">Post-AI</span>
+          <span className="text-[16px] tabular-nums text-[var(--color-accent-hover)]">
+            75 <span className="text-[12px] text-[var(--color-muted)]">/ mo</span>
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
 

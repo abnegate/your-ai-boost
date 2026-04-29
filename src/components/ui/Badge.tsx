@@ -7,12 +7,14 @@ type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
 };
 
 const toneClasses: Record<NonNullable<BadgeProps['tone']>, string> = {
-  neutral: 'text-[var(--color-muted)] border-[var(--color-border-strong)]',
-  accent: 'text-[var(--color-accent)] border-[var(--color-accent-soft)]',
+  neutral:
+    'text-[var(--color-muted-2)] bg-[var(--color-surface)] border-[var(--color-border-strong)]',
+  accent:
+    'text-[var(--color-accent-hover)] bg-[var(--color-accent-soft)] border-[color-mix(in_oklab,var(--color-accent)_30%,transparent)]',
   success:
-    'text-[var(--color-success)] border-[color-mix(in_oklab,var(--color-success)_40%,transparent)]',
+    'text-[var(--color-success)] bg-[color-mix(in_oklab,var(--color-success)_10%,transparent)] border-[color-mix(in_oklab,var(--color-success)_28%,transparent)]',
   warning:
-    'text-[var(--color-warning)] border-[color-mix(in_oklab,var(--color-warning)_40%,transparent)]',
+    'text-[var(--color-warning)] bg-[color-mix(in_oklab,var(--color-warning)_10%,transparent)] border-[color-mix(in_oklab,var(--color-warning)_28%,transparent)]',
 };
 
 export function Badge({ tone = 'neutral', dot, className, children, ...rest }: BadgeProps) {
@@ -20,13 +22,13 @@ export function Badge({ tone = 'neutral', dot, className, children, ...rest }: B
     <span
       {...rest}
       className={cn(
-        'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[2px] border',
-        'font-mono text-[10px] tracking-[0.2em] uppercase',
+        'inline-flex items-center gap-1.5 px-2 h-[22px] rounded-[var(--radius-xs)] border',
+        'text-[11px] font-medium tracking-tight',
         toneClasses[tone],
         className,
       )}
     >
-      {dot && <span className="size-1.5 bg-current rotate-45" />}
+      {dot && <span className="size-1.5 rounded-full bg-current" />}
       {children}
     </span>
   );

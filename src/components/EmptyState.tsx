@@ -8,21 +8,27 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <div className="panel crosshairs relative px-6 py-16 text-center">
-      <span className="ch-tr" />
-      <span className="ch-br" />
-      <div className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-muted)] mb-4">
-        ◇ Nothing to plot
+    <div className="surface edge-light px-6 py-14 text-center flex flex-col items-center gap-3">
+      <div className="size-10 rounded-full bg-[var(--color-surface-2)] border border-[var(--color-border)] grid place-items-center mb-2">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+          <circle cx="8" cy="8" r="6" stroke="var(--color-muted)" strokeWidth="1.4" />
+          <path
+            d="M5.5 8.5h5"
+            stroke="var(--color-muted)"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+        </svg>
       </div>
-      <h2 className="display italic text-[36px] text-[var(--color-paper)] leading-tight">
+      <h2 className="text-[18px] font-semibold text-[var(--color-text-strong)] tracking-tight">
         {title}
       </h2>
       {description && (
-        <p className="text-[14px] text-[var(--color-text)] mt-3 max-w-md mx-auto leading-relaxed">
+        <p className="text-[13px] text-[var(--color-muted-2)] max-w-md mx-auto leading-relaxed">
           {description}
         </p>
       )}
-      {action && <div className="mt-6 flex justify-center">{action}</div>}
+      {action && <div className="mt-3 flex justify-center">{action}</div>}
     </div>
   );
 }

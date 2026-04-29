@@ -78,7 +78,7 @@ export function DashboardPage() {
 
   return (
     <AppShell githubLogin={viewer?.login} avatarUrl={viewer?.avatarUrl}>
-      <div className="mx-auto max-w-[1280px] px-6 py-8 flex flex-col gap-12">
+      <div className="mx-auto max-w-[1240px] px-6 py-10 flex flex-col gap-12">
         {isLoading && <ScanningPanel />}
 
         {errorMessage && (
@@ -86,7 +86,7 @@ export function DashboardPage() {
             title="Could not load your GitHub data"
             description={errorMessage}
             action={
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <Button onClick={() => liveAnalysis.refetch()}>Retry</Button>
                 <Button variant="secondary" onClick={loginWithGitHub}>
                   Re-authorise GitHub
@@ -107,62 +107,57 @@ export function DashboardPage() {
           <>
             <BoostHero result={result} />
 
-            {/* TIMESERIES */}
-            <section>
-              <SectionRule index="01" title="Timeseries">
-                <span>6 mo before patient zero · onward · {result.chartMonths.length} buckets</span>
-              </SectionRule>
-              <div className="grid grid-cols-12 gap-6 pt-6">
-                <div className="col-span-12 lg:col-span-8 panel p-5">
-                  <PanelHead
-                    eyebrow="Plate I"
-                    title="Monthly commits"
-                    sub="Dashed line marks patient zero. Green line: AI-marked commits / month."
-                  />
+            <section className="flex flex-col gap-6">
+              <SectionHead
+                title="Output over time"
+                description={`6 months before your first AI commit, onward · ${result.chartMonths.length} buckets`}
+              />
+              <div className="grid grid-cols-12 gap-3">
+                <ChartCard
+                  className="col-span-12 lg:col-span-8"
+                  title="Monthly commits"
+                  hint="All commits area · AI commits line. Vertical guide marks your first AI commit."
+                >
                   <MonthlyChart
                     months={result.chartMonths}
                     firstAiMonth={result.first.committedAt.slice(0, 7)}
                   />
-                </div>
-                <div className="col-span-12 lg:col-span-4 panel p-5">
-                  <PanelHead
-                    eyebrow="Plate II"
-                    title="Assistant mix"
-                    sub="Share of AI-marked commits, by tool."
-                  />
+                </ChartCard>
+                <ChartCard
+                  className="col-span-12 lg:col-span-4"
+                  title="Assistant mix"
+                  hint="Share of AI-marked commits, by tool"
+                >
                   <AssistantBreakdown assistants={result.assistants} />
-                </div>
+                </ChartCard>
               </div>
             </section>
 
-            {/* FIELD NOTES */}
-            <section>
-              <SectionRule index="02" title="Field notes">
-                <span>derived signals · annotated</span>
-              </SectionRule>
-              <div className="pt-6">
-                <InsightsList result={result} />
-              </div>
+            <section className="flex flex-col gap-6">
+              <SectionHead title="Signals" description="Derived metrics from your AI commit set" />
+              <InsightsList result={result} />
             </section>
 
-            {/* CADENCE */}
-            <section>
-              <SectionRule index="03" title="Cadence">
-                <span>local time · last {result.totalAiCommits.toLocaleString()} samples</span>
-              </SectionRule>
-              <div className="grid grid-cols-12 gap-6 pt-6">
-                <div className="col-span-12 lg:col-span-7 panel p-5">
-                  <PanelHead eyebrow="Plate III" title="Hour of day" sub="Your local time." />
+            <section className="flex flex-col gap-6">
+              <SectionHead
+                title="Cadence"
+                description={`When you ship with AI · local time · ${result.totalAiCommits.toLocaleString()} samples`}
+              />
+              <div className="grid grid-cols-12 gap-3">
+                <ChartCard
+                  className="col-span-12 lg:col-span-7"
+                  title="Hour of day"
+                  hint="Your local timezone"
+                >
                   <HourHeatmap hours={result.hourHistogram} />
-                </div>
-                <div className="col-span-12 lg:col-span-5 panel p-5">
-                  <PanelHead
-                    eyebrow="Plate IV"
-                    title="Weekday"
-                    sub="AI-marked commits by weekday."
-                  />
+                </ChartCard>
+                <ChartCard
+                  className="col-span-12 lg:col-span-5"
+                  title="Weekday"
+                  hint="AI-marked commits, by day"
+                >
                   <WeekdayBars counts={result.dayOfWeekHistogram} />
-                </div>
+                </ChartCard>
               </div>
             </section>
           </>
@@ -172,70 +167,63 @@ export function DashboardPage() {
   );
 }
 
-function SectionRule({
-  index,
+function SectionHead({
   title,
-  children,
+  description,
 }: {
-  readonly index: string;
   readonly title: string;
-  readonly children?: React.ReactNode;
+  readonly description: string;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 pt-5 border-t border-[var(--color-rule)]">
-      <div className="flex items-baseline gap-3">
-        <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-accent)]">
-          § {index}
-        </span>
-        <span className="display italic text-[26px] text-[var(--color-paper)] leading-none">
+    <div className="flex items-end justify-between gap-4">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-[20px] font-semibold text-[var(--color-text-strong)] tracking-tight">
           {title}
-        </span>
+        </h2>
+        <p className="text-[12px] text-[var(--color-muted)]">{description}</p>
       </div>
-      {children && (
-        <span className="hidden sm:block font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)] tabular-nums">
-          {children}
-        </span>
-      )}
     </div>
   );
 }
 
-function PanelHead({
-  eyebrow,
+function ChartCard({
+  className,
   title,
-  sub,
+  hint,
+  children,
 }: {
-  readonly eyebrow: string;
+  readonly className?: string;
   readonly title: string;
-  readonly sub: string;
+  readonly hint?: string;
+  readonly children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 mb-4 pb-3 border-b border-dashed border-[var(--color-border)]">
-      <div className="flex flex-col gap-0.5">
-        <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-accent)]">
-          {eyebrow}
-        </span>
-        <span className="text-[15px] font-medium text-[var(--color-paper)]">{title}</span>
+    <div className={`surface edge-light p-5 flex flex-col gap-4 ${className ?? ''}`}>
+      <div className="flex items-baseline justify-between gap-4">
+        <h3 className="text-[14px] font-medium text-[var(--color-text-strong)] tracking-tight">
+          {title}
+        </h3>
+        {hint && (
+          <span className="text-[11px] text-[var(--color-muted)] text-right max-w-[280px]">
+            {hint}
+          </span>
+        )}
       </div>
-      <span className="hidden md:inline font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-muted)] max-w-[280px] text-right">
-        {sub}
-      </span>
+      <div className="flex-1">{children}</div>
     </div>
   );
 }
 
 function ScanningPanel() {
   return (
-    <div className="panel p-6 flex items-center gap-5 crosshairs relative overflow-hidden">
-      <span className="ch-tr" />
-      <span className="ch-br" />
+    <div className="surface edge-light ambient p-6 flex items-center gap-5">
       <Spinner />
       <div className="flex flex-col gap-1">
-        <div className="font-mono text-[11px] tracking-[0.2em] uppercase text-[var(--color-accent)]">
-          Now scanning
+        <div className="text-[13px] font-medium text-[var(--color-text-strong)]">
+          Scanning your contributions
         </div>
-        <div className="text-[14px] text-[var(--color-paper)]">
-          Reading your contribution graph and searching for AI markers across two years of commits.
+        <div className="text-[12px] text-[var(--color-muted-2)]">
+          Reading the contribution graph and searching for AI markers across the last 2 years.
         </div>
       </div>
     </div>

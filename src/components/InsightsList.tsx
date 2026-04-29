@@ -8,7 +8,6 @@ type InsightsListProps = {
 
 type Insight = {
   readonly id: string;
-  readonly index: string;
   readonly title: string;
   readonly value: ReactNode;
   readonly hint?: ReactNode;
@@ -46,122 +45,93 @@ function busiestDayLabel(counts: readonly number[]): string {
   return weekdayNames[bestIndex] ?? '—';
 }
 
-const circled = ['❶', '❷', '❸', '❹', '❺', '❻'];
-
 export function InsightsList({ result }: InsightsListProps) {
   const insights: Insight[] = [
     {
-      id: 'first',
-      index: '01',
-      title: 'First AI-assisted commit',
-      value: result.first ? formatDate(result.first.committedAt) : '—',
-      hint: result.first ? (
-        <a
-          href={result.first.htmlUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="font-mono text-[11px] text-[var(--color-accent)] hover:underline"
-        >
-          {result.first.repository} · {result.first.sha.slice(0, 7)}
-        </a>
-      ) : (
-        'No AI markers detected in your commit history yet.'
-      ),
-    },
-    {
       id: 'best',
-      index: '02',
       title: 'Best post-AI month',
-      value: result.bestMonth ? `${formatNumber(result.bestMonth.commits)}` : '—',
+      value: result.bestMonth ? formatNumber(result.bestMonth.commits) : '—',
       hint: result.bestMonth ? `commits in ${formatMonth(result.bestMonth.yearMonth)}` : null,
     },
     {
       id: 'streak',
-      index: '03',
-      title: 'Streak of months using AI',
-      value: `${result.currentStreakMonths}`,
-      hint: `current · longest streak ${result.longestStreakMonths} months`,
+      title: 'Current AI streak',
+      value: `${result.currentStreakMonths} mo`,
+      hint: `longest ${result.longestStreakMonths} mo`,
     },
     {
       id: 'share',
-      index: '04',
-      title: 'AI share of all commits',
+      title: 'AI share',
       value: formatPercent(result.aiShare, 1),
-      hint: `${formatNumber(result.totalAiCommits)} of ${formatNumber(result.totalCommits)} commits across all repos`,
+      hint: `${formatNumber(result.totalAiCommits)} of ${formatNumber(result.totalCommits)} commits`,
     },
     {
       id: 'rhythm',
-      index: '05',
-      title: 'Peak commit window',
+      title: 'Peak hour',
       value: busiestHourLabel(result.hourHistogram),
-      hint: `most active day · ${busiestDayLabel(result.dayOfWeekHistogram)}`,
+      hint: `most active · ${busiestDayLabel(result.dayOfWeekHistogram)}`,
     },
     {
       id: 'days',
-      index: '06',
-      title: 'Estimated dev-days reclaimed',
+      title: 'Dev-days reclaimed',
       value: result.daysSavedEstimate.toFixed(1),
-      hint: '@ ~25 minutes saved per AI-assisted commit, 8h workdays',
+      hint: '~25 min saved per AI commit',
+    },
+    {
+      id: 'first',
+      title: 'First AI commit',
+      value: result.first ? formatDate(result.first.committedAt) : '—',
+      hint: result.first ? `${result.first.repository} · ${result.first.sha.slice(0, 7)}` : null,
     },
   ];
 
   return (
     <div className="grid grid-cols-12 gap-6">
-      {/* Notes */}
-      <ol className="col-span-12 lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-        {insights.map((insight, i) => (
+      <ul className="col-span-12 lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+        {insights.map((insight) => (
           <li
             key={insight.id}
-            className="flex gap-3 pt-3 border-t border-dashed border-[var(--color-border)]"
+            className="surface edge-light p-4 flex flex-col gap-2 hover:border-[var(--color-border-strong)] transition-colors"
           >
-            <span
-              aria-hidden
-              className="font-mono text-[14px] text-[var(--color-accent)] mt-0.5 select-none"
-            >
-              {circled[i] ?? insight.index}
+            <span className="text-[12px] font-medium text-[var(--color-muted-2)] tracking-tight">
+              {insight.title}
             </span>
-            <div className="flex flex-col gap-1.5 min-w-0">
-              <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)]">
-                {insight.title}
+            <span className="text-[26px] font-semibold text-[var(--color-text-strong)] tabular-nums tracking-[-0.02em] leading-[1.05]">
+              {insight.value}
+            </span>
+            {insight.hint && (
+              <span className="text-[12px] text-[var(--color-muted)] leading-relaxed">
+                {insight.hint}
               </span>
-              <span className="display italic text-[34px] leading-[0.95] text-[var(--color-paper)] tabular-nums">
-                {insight.value}
-              </span>
-              {insight.hint && (
-                <span className="text-[12px] text-[var(--color-muted)] leading-relaxed">
-                  {insight.hint}
-                </span>
-              )}
-            </div>
+            )}
           </li>
         ))}
-      </ol>
+      </ul>
 
-      {/* Patient zero — exhibit card */}
       {result.first && (
-        <aside className="col-span-12 lg:col-span-4 panel p-5 flex flex-col gap-3 self-start">
-          <div className="flex items-baseline justify-between pb-3 border-b border-[var(--color-border)]">
-            <span className="font-mono text-[10px] tracking-[0.24em] uppercase text-[var(--color-accent)]">
-              Exhibit A
-            </span>
-            <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-muted)]">
+        <aside className="col-span-12 lg:col-span-4 surface edge-light p-5 flex flex-col gap-3 self-start">
+          <div className="flex items-baseline justify-between">
+            <h4 className="text-[13px] font-medium text-[var(--color-text-strong)] tracking-tight">
               Patient zero
+            </h4>
+            <span className="text-[11px] text-[var(--color-muted)] tabular-nums">
+              {formatDate(result.first.committedAt)}
             </span>
           </div>
-          <div className="font-mono text-[10px] tracking-[0.16em] uppercase text-[var(--color-muted)] tabular-nums">
-            {formatDate(result.first.committedAt)} · {result.first.repository} ·{' '}
-            {result.first.sha.slice(0, 7)}
+          <div className="text-[12px] text-[var(--color-muted-2)] tabular-nums truncate">
+            {result.first.repository} ·{' '}
+            <span className="font-mono">{result.first.sha.slice(0, 7)}</span>
           </div>
-          <pre className="text-[12px] text-[var(--color-text)] whitespace-pre-wrap font-mono leading-[1.55] max-h-44 overflow-y-auto pl-3 border-l border-[var(--color-accent)] bg-[var(--color-surface-2)] py-2 pr-2">
+          <pre className="text-[12px] text-[var(--color-text)] whitespace-pre-wrap font-mono leading-[1.55] max-h-44 overflow-y-auto rounded-[var(--radius-sm)] bg-[var(--color-bg-elev)] border border-[var(--color-border)] p-3">
             {result.first.message.split('\n').slice(0, 10).join('\n')}
           </pre>
           <a
             href={result.first.htmlUrl}
             target="_blank"
             rel="noreferrer"
-            className="self-end font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-paper)]"
+            className="self-end text-[12px] text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
           >
-            Open on GitHub ↗
+            Open on GitHub →
           </a>
         </aside>
       )}

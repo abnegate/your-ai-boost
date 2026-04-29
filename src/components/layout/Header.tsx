@@ -8,8 +8,6 @@ type HeaderProps = {
   readonly avatarUrl?: string | undefined;
 };
 
-const isoDate = (d = new Date()): string => d.toISOString().slice(0, 10);
-
 export function Header({ githubLogin, avatarUrl }: HeaderProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -25,51 +23,44 @@ export function Header({ githubLogin, avatarUrl }: HeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 backdrop-blur-md bg-[color-mix(in_oklab,var(--color-canvas)_88%,transparent)] border-b border-[var(--color-border)]">
-      <div className="mx-auto max-w-[1280px] px-6">
-        <div className="flex items-center justify-between gap-6 h-14">
+    <header className="sticky top-0 z-30 backdrop-blur-xl bg-[color-mix(in_oklab,var(--color-bg)_75%,transparent)] border-b border-[var(--color-border)]">
+      <div className="mx-auto max-w-[1240px] px-6">
+        <div className="flex items-center justify-between gap-6 h-12">
           <Logo />
-
-          {/* Center marquee — date / coordinates / edition */}
-          <div className="hidden md:flex items-center gap-5 font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)] tabular-nums">
-            <span>filed&nbsp;·&nbsp;{isoDate()}</span>
-            <span className="hatch h-[10px] w-16" aria-hidden />
-            <span>edition&nbsp;·&nbsp;NZ&#8202;/&#8202;AKL</span>
-          </div>
-
-          {/* Right side */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {githubLogin ? (
               <>
-                <div className="flex items-center gap-2 pl-3 pr-1 py-1 border border-[var(--color-border-strong)] rounded-[var(--radius-sm)]">
+                <a
+                  href={`https://github.com/${githubLogin}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-center gap-2 pl-1 pr-2.5 h-7 rounded-[var(--radius-sm)] border border-transparent hover:border-[var(--color-border)] hover:bg-[var(--color-surface)] transition-colors"
+                >
                   {avatarUrl && (
                     <img
                       src={avatarUrl}
                       alt=""
-                      className="size-5 rounded-[2px] border border-[var(--color-border-strong)]"
+                      className="size-5 rounded-full border border-[var(--color-border-strong)]"
                     />
                   )}
-                  <span className="font-mono text-[11px] text-[var(--color-text)]">
-                    @{githubLogin}
+                  <span className="text-[12px] text-[var(--color-text)] tracking-tight">
+                    {githubLogin}
                   </span>
-                </div>
+                </a>
+                <span className="h-4 w-px bg-[var(--color-border)] mx-1" aria-hidden />
                 <button
                   type="button"
                   onClick={onLogout}
-                  className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)] hover:text-[var(--color-paper)] transition-colors"
+                  className="h-7 px-2.5 text-[12px] text-[var(--color-muted-2)] hover:text-[var(--color-text-strong)] hover:bg-[var(--color-surface)] rounded-[var(--radius-sm)] transition-colors"
                 >
-                  Sign out ↗
+                  Sign out
                 </button>
               </>
             ) : (
-              <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--color-muted)]">
-                Unidentified
-              </span>
+              <span className="text-[12px] text-[var(--color-muted)]">Not signed in</span>
             )}
           </div>
         </div>
-        {/* Hairline ticker bar */}
-        <div className="hatch h-[3px] -mb-px" aria-hidden />
       </div>
     </header>
   );

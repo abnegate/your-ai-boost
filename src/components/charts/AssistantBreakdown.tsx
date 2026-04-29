@@ -9,42 +9,42 @@ export function AssistantBreakdown({ assistants }: AssistantBreakdownProps) {
   const total = assistants.reduce((sum, a) => sum + a.count, 0);
   if (total === 0) {
     return (
-      <p className="font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--color-muted)]">
-        No AI-marker commits detected yet.
-      </p>
+      <p className="text-[12px] text-[var(--color-muted)]">No AI-marker commits detected yet.</p>
     );
   }
 
   return (
-    <ul className="flex flex-col">
+    <ul className="flex flex-col gap-3">
       {assistants.map((assistant) => {
         const share = total > 0 ? assistant.count / total : 0;
         return (
-          <li
-            key={assistant.assistant}
-            className="grid grid-cols-[auto_1fr_auto] items-center gap-3 py-2.5 border-b border-dashed border-[var(--color-border)] last:border-b-0"
-          >
-            <span
-              className="size-2 rotate-45"
-              style={{ background: assistant.accent }}
-              aria-hidden
-            />
-            <div className="flex items-baseline gap-3 min-w-0">
-              <span className="text-[14px] text-[var(--color-paper)] truncate">
-                {assistant.label}
+          <li key={assistant.assistant} className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  className="size-2 rounded-full shrink-0"
+                  style={{ background: assistant.accent }}
+                  aria-hidden
+                />
+                <span className="text-[13px] text-[var(--color-text-strong)] truncate">
+                  {assistant.label}
+                </span>
+              </div>
+              <span className="text-[12px] tabular-nums text-[var(--color-muted-2)] flex items-baseline gap-2 shrink-0">
+                <span className="text-[var(--color-text)]">{formatNumber(assistant.count)}</span>
+                <span className="text-[var(--color-muted)]">{formatPercent(share)}</span>
               </span>
-              <span className="flex-1 border-b border-dotted border-[var(--color-border)] translate-y-[-3px]" />
             </div>
-            <span className="font-mono text-[11px] tabular-nums text-[var(--color-muted)] flex items-baseline gap-2">
-              <span className="text-[var(--color-text)]">{formatNumber(assistant.count)}</span>
-              <span>{formatPercent(share)}</span>
-            </span>
-            <span className="col-span-3 h-px relative -mt-0.5" aria-hidden>
-              <span
-                className="absolute left-0 top-0 bottom-0"
-                style={{ width: `${share * 100}%`, background: assistant.accent, opacity: 0.4 }}
+            <div className="h-1 rounded-full bg-[var(--color-bg-elev)] overflow-hidden" aria-hidden>
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${Math.max(2, share * 100)}%`,
+                  background: assistant.accent,
+                  opacity: 0.85,
+                }}
               />
-            </span>
+            </div>
           </li>
         );
       })}

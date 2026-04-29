@@ -10,9 +10,9 @@ import {
 } from '~/lib/format';
 
 describe('formatMultiplier', () => {
-  test('rounds to one decimal with x suffix', () => {
-    expect(formatMultiplier(1.234)).toBe('1.2x');
-    expect(formatMultiplier(2.95)).toBe('3.0x');
+  test('rounds to one decimal', () => {
+    expect(formatMultiplier(1.234)).toBe('1.2');
+    expect(formatMultiplier(2.95)).toBe('3.0');
   });
 
   test('returns em-dash for zero, negative or non-finite values', () => {

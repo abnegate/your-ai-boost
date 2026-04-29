@@ -13,27 +13,25 @@ export function Stat({ label, value, hint, accent = 'default', className }: Stat
   return (
     <div
       className={cn(
-        'rounded-[var(--radius-lg)] border p-5',
+        'rounded-[var(--radius-lg)] border p-5 edge-light flex flex-col gap-2',
         accent === 'highlight'
-          ? 'bg-[var(--color-surface-3)] border-[var(--color-border-strong)]'
+          ? 'bg-[var(--color-surface-2)] border-[var(--color-border-strong)]'
           : 'bg-[var(--color-surface)] border-[var(--color-border)]',
         className,
       )}
     >
-      <div className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)] font-medium">
+      <div className="text-[12px] text-[var(--color-muted)] font-medium tracking-tight">
         {label}
       </div>
       <div
         className={cn(
-          'mt-2 font-semibold tabular-nums tracking-tight',
-          accent === 'highlight'
-            ? 'text-3xl text-[var(--color-text-strong)]'
-            : 'text-2xl text-[var(--color-text-strong)]',
+          'font-semibold tabular-nums tracking-[-0.02em] text-[var(--color-text-strong)]',
+          accent === 'highlight' ? 'text-[28px] leading-[1.05]' : 'text-[22px] leading-[1.1]',
         )}
       >
         {value}
       </div>
-      {hint && <div className="text-xs text-[var(--color-muted)] mt-2">{hint}</div>}
+      {hint && <div className="text-[12px] text-[var(--color-muted)] leading-relaxed">{hint}</div>}
     </div>
   );
 }
