@@ -15,10 +15,12 @@ appwrite login   # interactive — paste credentials for the cloud account that 
 ## Push the site definition + initial deployment
 
 ```bash
-pnpm install
-pnpm build
-appwrite push sites   # creates / updates the site declared in appwrite.config.json
+bun install
+bun run build
+appwrite push sites --with-variables   # --with-variables uploads the `vars` array; without it, env is empty
 ```
+
+`--with-variables` is required to push the entries under `sites[].vars`. Without it the build runs with no env, and although `src/lib/env.ts` falls back to public defaults baked into the bundle, you'll silently miss any per-environment override.
 
 ## Wire GitHub as the deployment source
 
