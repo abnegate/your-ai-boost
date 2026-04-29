@@ -1,5 +1,5 @@
 import { Octokit } from 'octokit';
-import { detectAssistant, markers, type AssistantId } from '~/domain/markers';
+import { buildAssistantQuery, detectAssistant, markers, type AssistantId } from '~/domain/markers';
 import type { DailyContribution, FirstAiCommit, GitHubViewer } from '~/domain/types';
 
 const userAgent = 'your-ai-boost (https://github.com)';
@@ -153,14 +153,17 @@ export async function searchAssistantCommits(
   octokit: Octokit,
   login: string,
 ): Promise<AssistantSearchResult[]> {
-  // Run all assistant searches in parallel; each assistant has exactly two
-  // calls (oldest commit + most-recent samples) using the canonical query.
+  // Run all assistant searches in parallel; each assistant uses a single OR-
+  // unioned query so GitHub dedupes internally. Two requests per assistant:
+  // oldest match (for patient-zero detection) + most recent 100 (for
+  // histograms / sample insights).
   return Promise.all(
     markers.map(async (marker): Promise<AssistantSearchResult> => {
+      const query = buildAssistantQuery(marker);
       try {
         const [first, recent] = await Promise.all([
-          searchCommitsForQuery(octokit, login, marker, marker.primaryQuery, 'asc', 1),
-          searchCommitsForQuery(octokit, login, marker, marker.primaryQuery, 'desc', 100),
+          searchCommitsForQuery(octokit, login, marker, query, 'asc', 1),
+          searchCommitsForQuery(octokit, login, marker, query, 'desc', 100),
         ]);
         return {
           assistant: marker.assistant,
