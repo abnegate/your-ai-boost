@@ -43,4 +43,4 @@ Deployed via **Appwrite Sites** with GitHub as the source. Push to `main` trigge
 appwrite sites create-deployment --code true --activate true
 ```
 
-See `appwrite.json` for the full site configuration.
+See `appwrite.config.json` for the full site configuration.

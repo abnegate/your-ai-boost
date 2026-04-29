@@ -1,6 +1,6 @@
 # Deployment
 
-`appwrite.json` declares an Appwrite Site named `your-ai-boost` for project `69f167e7001144ec353a` on `https://syd.cloud.appwrite.io/v1`.
+`appwrite.config.json` declares an Appwrite Site named `your-ai-boost` for project `69f167e7001144ec353a` on `https://syd.cloud.appwrite.io/v1`.
 
 ## One-time CLI setup
 
@@ -17,7 +17,7 @@ appwrite login   # interactive — paste credentials for the cloud account that 
 ```bash
 pnpm install
 pnpm build
-appwrite push sites   # creates / updates the site declared in appwrite.json
+appwrite push sites   # creates / updates the site declared in appwrite.config.json
 ```
 
 ## Wire GitHub as the deployment source
