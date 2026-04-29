@@ -25,8 +25,11 @@ const manifest = {
   setup_url: homepageUrl,
   public: true,
   default_permissions: {
-    contents: 'read',
-    metadata: 'read',
+    // Repository permissions
+    contents: 'read', // commit messages, files
+    metadata: 'read', // basic repo info (always granted)
+    // Account permissions
+    email_addresses: 'read', // Appwrite reads the primary email after OAuth
   },
   default_events: [],
   request_oauth_on_install: true,
